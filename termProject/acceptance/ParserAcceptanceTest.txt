@@ -1,3 +1,6 @@
+*** Settings ***
+Library           ParserKeywords
+
 | *Variable*  | *Value*                                                                                                   |
 | ${expected} | usage: java VolumeCalculator length width height\nVolumeCalcultor.java: error: unrecognized arguments: 43 |
 
@@ -10,10 +13,10 @@
 |                                        | ${height}=                            | Get Height         |              |            |            |
 |                                        | Should Be Equal                       | 2                  | ${height}    |            |            |
 |                                        | ${output}=                            | Get Program Output |              |            |            |
-|                                        | Should Be Equal                       | ${output}          | 70           |            |            |
+|                                        | Should Be Equal                       | ${output}          | 70.0         |            |            |
 | Test Unrecognized Argument             | Start Volume Cacluator With Arguments | 7                  | 5            | 2          | 43         |
 |                                        | ${output}=                            | Get Program Output |              |            |            |
-|                                        | Should Be Equal                       | ${output}          | 70           |            |            |
+|                                        | Should Be Equal                       | ${output}          | ${expected}  |            |            |
 | Test Absurd Program Normal Function    | Start Absurd Program With Arguments   | dog                | 2            | true       | 3.5        |
 |                                        | ${pet}=                               | Get Pet            |              |            |            |
 |                                        | Should Be Equal                       | dog                | ${pet}       |            |            |
