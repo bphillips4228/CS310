@@ -4,58 +4,121 @@ import java.lang.*;
 
 public class Parser{
 	
-	private List<String> nameList;
-	private List<String> valueList;
+	private List<Argument> argumentList;
 	
 	
 	public Parser(){
-		nameList = new ArrayList<String>();
-		valueList = new ArrayList<String>();
+		argumentList = new ArrayList<Argument>();
 	}
 	
-	public void insertNames(String[] args){
+	public void addArguments(String[] args){
 		for(int i = 0; i < args.length; i++){
-			nameList.add(args[i]);
+			if(args[i] == "-h")
+				throw new HelpException();
+			else
+				argumentList.add(new Argument(args[i], "String"));
 		}
 	}
 	
-	public void insertName(String arg){
-		nameList.add(arg);
+	public void addArgument(String arg){
+		if(arg == "-h")
+			throw new HelpException();
+		else
+			argumentList.add(new Argument(arg, "String"));
+	}
+	
+	public void addArgument(String name, String valueType){
+		if(name == "-h")
+			throw new HelpException();
+		else
+			argumentList.add(new Argument(name, valueType));
 	}
 	
 	public boolean containsName(String arg){
-		return nameList.contains(arg);
+		for(int i = 0; i < argumentList.size(); i++){
+			if(argumentList.get(i).getName() == arg)
+				return true;
+		}
+		return false;
 	}
 	
 	public void parseValues(String[] args){
-		for(int i = 0; i < args.length; i++){
-			valueList.add(args[i]);
-		}
-
-		if(valueList.size() > nameList.size()){
+		if(args.length > argumentList.size()){
 				String extraArgs = "";
-				for(int i = nameList.size(); i < valueList.size(); i++) {
+				for(int i = argumentList.size(); i < args.length; i++) {
 					extraArgs += args[i];
 				}
 				throw new TooManyArgsException(extraArgs);
 		}
 		
-		else if(valueList.size() < nameList.size()){
+		else if(args.length < argumentList.size()){
 				String extraArgs = "";
-				for(int i = valueList.size(); i < nameList.size(); i++) {
-					extraArgs += nameList.get(i);
+				for(int i = args.length; i < argumentList.size(); i++){
+					extraArgs += argumentList.get(i).getName();
 				}
 				throw new TooFewArgsException(extraArgs);
 		}
+		
+		for(int i = 0; i < argumentList.size(); i++){
+			argumentList.get(i).setValue(args[i]);
+			if(!checkValueType(argumentList.get(i).getName())){
+				throw new WrongTypeException(argumentList.get(i).getValue(), argumentList.get(i).getValueType());
+			}
+		}
+
 	}
 	
 	public String getValue(String arg){
-		int index = nameList.indexOf(arg);
-		return valueList.get(index);
+		for(int i = 0; i < argumentList.size(); i++){
+			if(argumentList.get(i).getName() == arg)
+				return argumentList.get(i).getValue();
+		}
+		
+		return "poop";
+		
 	}
 	
-	
-	
-	
-	
+	private boolean checkValueType(String arg){
+		for(int i = 0; i < argumentList.size(); i++){
+			if(argumentList.get(i).getName() == arg){
+				String argType = argumentList.get(i).getValueType();
+				int tempInt;
+				float tempFloat;
+				if(argType == "boolean"){
+					if(argumentList.get(i).getValue() == "true" || argumentList.get(i).getValue() == "false")
+						return true;
+					else 
+						return false;
+				}
+				
+				else if(argType == "int"){
+					try{
+						tempInt = Integer.parseInt(argumentList.get(i).getValue());
+					} catch(NumberFormatException ex){
+						return false;
+					}
+					return true;
+				}
+				
+				else if(argType == "float"){
+					try{
+						tempFloat = Float.parseFloat(argumentList.get(i).getValue());
+					} catch(NumberFormatException ex){
+						return false;
+					}
+					return true;
+				}
+				
+				else if(argType == "String"){
+					return true;
+				}
+				
+				else 
+					return false;
+				
+			}
+		}
+		return false;
+	}
 }
+	

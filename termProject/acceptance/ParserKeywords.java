@@ -6,11 +6,27 @@ public class ParserKeywords{
 	private Parser p;
 	private String output;
 	
+	public void startProgramWithArguments(String[] args){
+		p = new Parser();
+		p.addArgument("length", "float");
+		p.addArgument("width", "float");
+		p.addArgument("height", "float");
+		try{
+			p.parseValues(args);
+		}
+		catch(WrongTypeException ex){
+			output = "usage: java VolumeCalculator length width height\nVolumeCalcultor.java: error: argument width: invalid float value: " + ex.getWrongTypeArg();
+		}
+		catch(HelpException ex){
+			output = "usage: java VolumeCalculator length width height\nCalcuate the volume of a box.\npositional arguments:\nlength the length of the box (float)\nwidth the width of the box(float)\nheight the height of the box(float)";
+		}
+	}
+	
+	
 	public void startVolumeCacluatorWithArguments(String[] args){
-		System.out.println(Arrays.toString(args));
 		p = new Parser();
 		String[] asdf = {"length", "width", "height"};
-		p.insertNames(asdf);
+		p.addArguments(asdf);
 		try {
 			p.parseValues(args);
 			float volume;
@@ -28,10 +44,10 @@ public class ParserKeywords{
 	
 	public void startAbsurdProgramWithArguments(String[] args){
 		p = new Parser();
-		p.insertName("pet");
-		p.insertName("number");
-		p.insertName("rainy");
-		p.insertName("bathrooms");
+		p.addArgument("pet");
+		p.addArgument("number");
+		p.addArgument("rainy");
+		p.addArgument("bathrooms");
 		p.parseValues(args);
 	} 
 	
