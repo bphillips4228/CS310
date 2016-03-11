@@ -5,45 +5,90 @@ import java.lang.*;
 public class Parser{
 	
 	private List<Argument> argumentList;
-	
+	private List<Argument> optionalArgumentsList;
+	private String helpMessage;
+	private String programName;
 	
 	public Parser(){
 		argumentList = new ArrayList<Argument>();
-	}
+		optionalArgumentsList = new ArrayList<Argument>();
+		}
 	
 	public void addArguments(String[] args){
 		for(int i = 0; i < args.length; i++){
-			if(args[i] == "-h")
-				throw new HelpException();
-			else
-				argumentList.add(new Argument(args[i], "String"));
+			argumentList.add(new Argument(args[i], Argument.dataType.STRING));
 		}
 	}
 	
-	public void addArgument(String arg){
-		if(arg == "-h")
-			throw new HelpException();
-		else
-			argumentList.add(new Argument(arg, "String"));
+	public void addArgument(String name){
+		argumentList.add(new Argument(name));
 	}
 	
-	public void addArgument(String name, String valueType){
-		if(name == "-h")
-			throw new HelpException();
-		else
-			argumentList.add(new Argument(name, valueType));
+	public void addArgument(String name, Argument.dataType dataType){
+		argumentList.add(new Argument(name, dataType));
+	}
+	
+	public void addOptionalArgument(String[] arg){
+		int index = 0;
+		optionalArgumentsList.add(new Argument(arg[0]));
+		index = getIndex(arg[0]);
+		optionalArgumentsList.get(index).setValue(arg[1]);
+	}
+	
+	public void setOptionalArgumentType(String name, Argument.dataType dataType){
+		int index = getIndex(name);
+		optionalArgumentsList.get(index).setDataType(dataType);
+		
 	}
 	
 	public boolean containsName(String arg){
 		for(int i = 0; i < argumentList.size(); i++){
-			if(argumentList.get(i).getName() == arg)
+			if(argumentList.get(i).getName().equals(arg))
 				return true;
 		}
 		return false;
 	}
 	
+	public void setShortForm(String arg, String shortForm){
+		int index = getIndex(arg);
+		optionalArgumentsList.get(index).setShortForm(shortForm);
+	}
+	
+	public String shortForm(String arg){
+		int index = getIndex(arg);
+		return optionalArgumentsList.get(index).getShortForm();
+	}
+	
 	public void parseValues(String[] args){
-		if(args.length > argumentList.size()){
+		int count = 0;
+		List<String> newArgsList = new ArrayList<String>(Arrays.asList(args));
+		
+		for(int i = 0; i < args.length; i++){
+			int optionalArgCount = 0;
+			if((args[i].charAt(0) == '-')){
+				count++;
+				newArgsList.remove(args[i]);
+				String argument = args[i].replace("-", "");
+				int k = getIndex(argument);
+				if(k > -1){
+					if(optionalArgumentsList.get(k).getDataType() == Argument.dataType.BOOLEAN){
+						optionalArgumentsList.get(k).setValue("true");
+						break;
+					}
+					optionalArgumentsList.get(k).setValue(args[i+1]);
+					newArgsList.remove(args[i+1]);
+					count++;
+				}
+			}
+		}
+		
+		for(int i = 0; i < optionalArgumentsList.size(); i++){
+			if(optionalArgumentsList.get(i).getDataType() ==  Argument.dataType.BOOLEAN)
+				if(optionalArgumentsList.get(i).getValue() == "true")
+					throw new HelpException(programName, optionalArgumentsList.get(i).getMessage());
+		}
+		
+		if(args.length > argumentList.size() + count){
 				String extraArgs = "";
 				for(int i = argumentList.size(); i < args.length; i++) {
 					extraArgs += args[i];
@@ -51,18 +96,23 @@ public class Parser{
 				throw new TooManyArgsException(extraArgs);
 		}
 		
-		else if(args.length < argumentList.size()){
+		else if(args.length < argumentList.size() + count){
 				String extraArgs = "";
 				for(int i = args.length; i < argumentList.size(); i++){
-					extraArgs += argumentList.get(i).getName();
+					extraArgs += argumentList.get(i).getName() + " ";
 				}
 				throw new TooFewArgsException(extraArgs);
 		}
 		
 		for(int i = 0; i < argumentList.size(); i++){
-			argumentList.get(i).setValue(args[i]);
-			if(!checkValueType(argumentList.get(i).getName())){
-				throw new WrongTypeException(argumentList.get(i).getValue(), argumentList.get(i).getValueType());
+			String argList = "";
+			argumentList.get(i).setValue(newArgsList.get(i));
+			if(!checkdataType(argumentList.get(i).getName())){
+				for(int j = 0; j < argumentList.size(); j++){
+					String temp = argumentList.get(j).getName();
+					argList += temp + " ";
+				}
+				throw new WrongTypeException(argumentList.get(i).getValue(), dataTypeToString(argumentList.get(i)), programName, argList, argumentList.get(i).getName());
 			}
 		}
 
@@ -70,28 +120,44 @@ public class Parser{
 	
 	public String getValue(String arg){
 		for(int i = 0; i < argumentList.size(); i++){
-			if(argumentList.get(i).getName() == arg)
+			if(argumentList.get(i).getName().equals(arg))
 				return argumentList.get(i).getValue();
 		}
 		
-		return "poop";
-		
+		return "";
 	}
 	
-	private boolean checkValueType(String arg){
+	public String getOptionalValue(String arg){
+		for(int i = 0; i < optionalArgumentsList.size(); i++){
+			if(optionalArgumentsList.get(i).getName().equals(arg))
+				return optionalArgumentsList.get(i).getValue();
+		}
+		
+		return "";
+	}
+	
+	private int getIndex(String arg){
+		for(int i = 0; i < optionalArgumentsList.size(); i++){
+			if((optionalArgumentsList.get(i).getName().equals(arg)) || (optionalArgumentsList.get(i).getShortForm().equals(arg)))
+				return i;
+		}
+		return -1;
+	}
+	
+	private boolean checkdataType(String arg){
 		for(int i = 0; i < argumentList.size(); i++){
-			if(argumentList.get(i).getName() == arg){
-				String argType = argumentList.get(i).getValueType();
+			if(argumentList.get(i).getName().equals(arg)){
+				Argument.dataType argType = argumentList.get(i).getDataType();
 				int tempInt;
 				float tempFloat;
-				if(argType == "boolean"){
-					if(argumentList.get(i).getValue() == "true" || argumentList.get(i).getValue() == "false")
+				if(argType.equals(Argument.dataType.BOOLEAN)){
+					if(argumentList.get(i).getValue().equals("true") || argumentList.get(i).getValue().equals("false"))
 						return true;
 					else 
 						return false;
 				}
 				
-				else if(argType == "int"){
+				else if(argType.equals(Argument.dataType.INT)){
 					try{
 						tempInt = Integer.parseInt(argumentList.get(i).getValue());
 					} catch(NumberFormatException ex){
@@ -100,7 +166,7 @@ public class Parser{
 					return true;
 				}
 				
-				else if(argType == "float"){
+				else if(argType.equals(Argument.dataType.FLOAT)){
 					try{
 						tempFloat = Float.parseFloat(argumentList.get(i).getValue());
 					} catch(NumberFormatException ex){
@@ -109,7 +175,7 @@ public class Parser{
 					return true;
 				}
 				
-				else if(argType == "String"){
+				else if(argType.equals(Argument.dataType.STRING)){
 					return true;
 				}
 				
@@ -119,6 +185,27 @@ public class Parser{
 			}
 		}
 		return false;
+	}
+	
+	public void setArgumentMessage(String arg, String message){
+		int index = getIndex(arg);
+		optionalArgumentsList.get(index).setMessage(message);
+	}
+	
+	public void setProgramName(String name){
+		this.programName = name;
+	}
+	
+	private String dataTypeToString(Argument arg){
+		Argument.dataType type = arg.getDataType();
+		if(type == (Argument.dataType.BOOLEAN))
+			return "Boolean";
+		else if(type == (Argument.dataType.INT))
+			return "int";
+		else if(type == (Argument.dataType.FLOAT))
+			return "float";
+		else
+			return "String";
 	}
 }
 	

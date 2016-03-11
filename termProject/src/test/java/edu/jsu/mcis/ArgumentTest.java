@@ -15,16 +15,37 @@ public class ArgumentTest{
 	}
 	
 	@Test
-	public void testThatValueTypeIsCreated(){
-		a = new Argument("length", "float");
-		assertEquals("float", a.getValueType());
+	public void testThatdataTypeIsCreated(){
+		a = new Argument("length", Argument.dataType.FLOAT);
+		assertEquals(Argument.dataType.FLOAT, a.getDataType());
 	}
 	
 	@Test
 	public void testThatValueIsAdded(){
-		a = new Argument("length", "float");
+		a = new Argument("length", Argument.dataType.FLOAT);
 		a.setValue("5");
 		assertEquals("5", a.getValue());
-		}
+	}
+	
+	@Test
+	public void testThatShortFormIsSet(){
+		a = new Argument("help", Argument.dataType.BOOLEAN);
+		a.setShortForm("h");
+		assertEquals("h", a.getShortForm());
+	}
+	
+	@Test
+	public void testThatMessageIsSet(){
+		a = new Argument("help", Argument.dataType.BOOLEAN);
+		a.setMessage("asdf");
+		assertEquals("asdf", a.getMessage());
+	}
+	
+	@Test
+	public void TestThatDataTypeIsSet(){
+		a = new Argument("help");
+		a.setDataType(Argument.dataType.BOOLEAN);
+		assertEquals(Argument.dataType.BOOLEAN, a.getDataType());
+	}
 
 }

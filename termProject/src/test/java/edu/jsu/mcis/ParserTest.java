@@ -15,7 +15,17 @@ public class ParserTest{
 	
 	@Test
 	public void testThatNewInstanceHasNoArgumentValue(){
-		assertEquals("poop", p.getValue("length"));
+		assertEquals("", p.getValue("length"));
+	}
+	
+	@Test
+	public void testThatUserArgumentIsAdded(){
+		String[] args = {"type", "box"};
+		String[] values = {"--type", "box"};
+		p.addOptionalArgument(args);
+		p.setShortForm("type", "t");
+		p.parseValues(values);
+		assertEquals("box", p.getOptionalValue("type"));
 	}
 	
 	@Test(expected = TooManyArgsException.class)
@@ -26,24 +36,53 @@ public class ParserTest{
 		p.parseValues(values);
 	}
 	
-	@Test
-	public void testForTooFewArgumentsException1(){
-		try{
-			String[] values = {"5", "5"};
-			String[] args = {"length", "width", "height"};
-			p.addArguments(args);
-			p.parseValues(values);
-		} catch(TooFewArgsException ex){
-			output = ex.getExtraArgs();
-		}
-		assertEquals("the following arguments are required: height", "the following arguments are required: " + output);
-	}
-	
 	@Test(expected = HelpException.class)
 	public void testThatHelpExceptionIsThrown(){
-		String[] args = {"-h"};
-		p = new Parser();
-		p.addArguments(args);
+		p.setProgramName("program");
+		String[] arg = {"help", "false"};
+		String[] values = {"-h"};
+		p.addOptionalArgument(arg);
+		p.setOptionalArgumentType("help", Argument.dataType.BOOLEAN);
+		p.setArgumentMessage("help", "poop");
+		p.setShortForm("help", "h");
+		p.parseValues(values);
+	}
+	
+	@Test
+	public void acceptanceTestFive(){
+		String[] names = {"length", "width", "height"};
+		String[] type = {"type", "box"};
+		String[] digits = {"digits", "4"};
+		String[] values = {"--type", "ellipsoid", "7", "3", "--digits", "1", "2"};
+		p.addArguments(names);
+		p.addOptionalArgument(type);
+		p.addOptionalArgument(digits);
+		p.parseValues(values);
+		assertEquals("7", p.getValue("length"));
+		assertEquals("3", p.getValue("width"));
+		assertEquals("2", p.getValue("height"));
+		assertEquals("ellipsoid", p.getOptionalValue("type"));
+		assertEquals("1", p.getOptionalValue("digits"));
+	}
+	
+	@Test
+	public void acceptanceTestOne(){
+		String[] args = {"7", "5", "2"};
+		p.addArgument("length", Argument.dataType.FLOAT);
+		p.addArgument("width", Argument.dataType.FLOAT);
+		p.addArgument("height", Argument.dataType.FLOAT);
+		String[] type = {"type", "box"};
+		String[] digits = {"digits", "4"};
+		p.addOptionalArgument(type);
+		p.addOptionalArgument(digits);
+		p.parseValues(args);
+		float volume;
+		float h = Float.parseFloat(p.getValue("height"));
+		float w = Float.parseFloat(p.getValue("width"));
+		float l = Float.parseFloat(p.getValue("length"));
+		volume = l*w*h;
+		String asdf = Float.toString(volume);
+		assertEquals("70.0", asdf);
 	}
 	
 	@Test(expected = TooFewArgsException.class)
@@ -58,7 +97,7 @@ public class ParserTest{
 	public void testForWrongTypeExceptionWithFloat(){
 		String[] values = {"something"};
 		String arg = "wrongtype";
-		p.addArgument(arg, "float");
+		p.addArgument(arg, Argument.dataType.FLOAT);
 		p.parseValues(values);
 	}
 	
@@ -66,7 +105,7 @@ public class ParserTest{
 	public void testForWrongTypeExceptionWithInt(){
 		String[] values = {"something"};
 		String arg = "wrongtype";
-		p.addArgument(arg, "int");
+		p.addArgument(arg, Argument.dataType.INT);
 		p.parseValues(values);
 	}
 	
@@ -74,7 +113,14 @@ public class ParserTest{
 	public void testForWrongTypeExceptionWithBoolean(){
 		String[] values = {"something"};
 		String arg = "wrongtype";
-		p.addArgument(arg, "boolean");
+		p.addArgument(arg, Argument.dataType.BOOLEAN);
+		p.parseValues(values);
+	}
+	
+	public void testForWrongTypeExceptionWithArgumentWithNoAcceptedType(){
+		String[] values = {"24354984"};
+		String arg = "wrongtype";
+		p.addArgument(arg);
 		p.parseValues(values);
 	}
 	
@@ -83,11 +129,12 @@ public class ParserTest{
 		Boolean exceptionCatch = false;
 		try{
 			String[] values = {"17.5", "6", "true", "something"};
-			p.addArgument("float", "float");
-			p.addArgument("int", "int");
-			p.addArgument("boolean", "boolean");
-			p.addArgument("String", "String");
+			p.addArgument("float", Argument.dataType.FLOAT);
+			p.addArgument("int", Argument.dataType.INT);
+			p.addArgument("boolean", Argument.dataType.BOOLEAN);
+			p.addArgument("String", Argument.dataType.STRING);
 			p.parseValues(values);
+			exceptionCatch = true;
 			exceptionCatch = true;
 		}catch(WrongTypeException ex){
 			exceptionCatch = false;

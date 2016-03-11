@@ -3,8 +3,8 @@ package edu.jsu.mcis;
 public class WrongTypeException extends RuntimeException{
 	String wrongTypeArg;
 	
-	public WrongTypeException(String wrongTypeArg, String Type){
-		super("usage: java VolumeCalculator length width height\nVolumeCalcultor.java: error: argument width: invalid " + Type + " value: " + wrongTypeArg);
+	public WrongTypeException(String wrongTypeArg, String type, String programName, String argList, String argName){
+		super("usage: java " + programName + " " + argList + "\n" + programName + ".java: error: argument" + argName + ": invalid " + type + " value: " + wrongTypeArg);
 		this.wrongTypeArg = wrongTypeArg;
 	}
 	

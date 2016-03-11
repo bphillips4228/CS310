@@ -8,25 +8,34 @@ public class ParserKeywords{
 	
 	public void startProgramWithArguments(String[] args){
 		p = new Parser();
-		p.addArgument("length", "float");
-		p.addArgument("width", "float");
-		p.addArgument("height", "float");
+		p.addArgument("length", Argument.dataType.FLOAT);
+		p.addArgument("width", Argument.dataType.FLOAT);
+		p.addArgument("height", Argument.dataType.FLOAT);
+		String[] help = {"help", "false"};
+		p.addOptionalArgument(help);
+		p.setArgumentMessage("help", "length width height\nCalcuate the volume of a box.\npositional arguments:\n   length the length of the box (float)\n   width the width of the box(float)\n   height the height of the box(float)");
+		p.setOptionalArgumentType("help", Argument.dataType.BOOLEAN);
+		p.setShortForm("help", "h");
 		try{
 			p.parseValues(args);
-		}
-		catch(WrongTypeException ex){
-			output = "usage: java VolumeCalculator length width height\nVolumeCalcultor.java: error: argument width: invalid float value: " + ex.getWrongTypeArg();
 		}
 		catch(HelpException ex){
 			output = "usage: java VolumeCalculator length width height\nCalcuate the volume of a box.\npositional arguments:\nlength the length of the box (float)\nwidth the width of the box(float)\nheight the height of the box(float)";
 		}
+		catch(WrongTypeException ex){
+			output = "usage: java VolumeCalculator length width height\nVolumeCalcultor.java: error: argument width: invalid float value: " + ex.getWrongTypeArg();
+		}
 	}
-	
 	
 	public void startVolumeCacluatorWithArguments(String[] args){
 		p = new Parser();
-		String[] asdf = {"length", "width", "height"};
-		p.addArguments(asdf);
+		p.addArgument("length", Argument.dataType.FLOAT);
+		p.addArgument("width", Argument.dataType.FLOAT);
+		p.addArgument("height", Argument.dataType.FLOAT);
+		String[] type = {"type", "box"};
+		String[] digits = {"digits", "4"};
+		p.addOptionalArgument(type);
+		p.addOptionalArgument(digits);
 		try {
 			p.parseValues(args);
 			float volume;
@@ -39,7 +48,6 @@ public class ParserKeywords{
 		catch(TooManyArgsException ex) {
 			output = "usage: java VolumeCalculator length width height\nVolumeCalcultor.java: error: unrecognized arguments: " + ex.getExtraArgs();
 		}
-		
 	}
 	
 	public void startAbsurdProgramWithArguments(String[] args){
@@ -50,6 +58,14 @@ public class ParserKeywords{
 		p.addArgument("bathrooms");
 		p.parseValues(args);
 	} 
+	
+	public String getType(){
+		return p.getOptionalValue("type");
+	}
+	
+	public String getDigits(){
+		return p.getOptionalValue("digits");
+	}
 	
 	public String getLength(){
 		return p.getValue("length");
