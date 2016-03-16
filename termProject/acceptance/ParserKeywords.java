@@ -36,6 +36,8 @@ public class ParserKeywords{
 		String[] digits = {"digits", "4"};
 		p.addOptionalArgument(type);
 		p.addOptionalArgument(digits);
+		p.setShortForm("type", "t");
+		p.setShortForm("digits", "d");
 		try {
 			p.parseValues(args);
 			float volume;

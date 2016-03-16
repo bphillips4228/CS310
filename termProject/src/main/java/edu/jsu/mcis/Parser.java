@@ -64,29 +64,48 @@ public class Parser{
 		List<String> newArgsList = new ArrayList<String>(Arrays.asList(args));
 		
 		for(int i = 0; i < args.length; i++){
-			int optionalArgCount = 0;
+			int k = 0;
 			if((args[i].charAt(0) == '-')){
 				count++;
 				newArgsList.remove(args[i]);
 				String argument = args[i].replace("-", "");
-				int k = getIndex(argument);
-				if(k > -1){
-					if(optionalArgumentsList.get(k).getDataType() == Argument.dataType.BOOLEAN){
-						optionalArgumentsList.get(k).setValue("true");
-						break;
+				if(args[i].length() > 2 && args[i].charAt(1) != '-'){
+					String[] charArray = argument.split("(?!^)");
+					for(int j = 0; j < charArray.length; j++){
+						k = getIndex(charArray[j]);
+						if(k > -1){
+							if(optionalArgumentsList.get(k).getDataType() == Argument.dataType.BOOLEAN){
+								optionalArgumentsList.get(k).setValue("true");
+							}
+						}
 					}
-					optionalArgumentsList.get(k).setValue(args[i+1]);
-					newArgsList.remove(args[i+1]);
-					count++;
+					newArgsList.remove(args[i]);
+			    }
+				else{
+					k = getIndex(argument);
+					if(k > -1){
+						if(optionalArgumentsList.get(k).getDataType() == Argument.dataType.BOOLEAN){
+							optionalArgumentsList.get(k).setValue("true");
+							break;
+						}
+						optionalArgumentsList.get(k).setValue(args[i+1]);
+						newArgsList.remove(args[i+1]);
+						count++;
+					}
 				}
 			}
 		}
 		
-		for(int i = 0; i < optionalArgumentsList.size(); i++){
+		if(getOptionalValue("help").equals("true")){
+			int k = getIndex("help");
+			throw new HelpException(programName, optionalArgumentsList.get(k).getMessage());
+		}
+			
+		/*for(int i = 0; i < optionalArgumentsList.size(); i++){
 			if(optionalArgumentsList.get(i).getDataType() ==  Argument.dataType.BOOLEAN)
 				if(optionalArgumentsList.get(i).getValue() == "true")
 					throw new HelpException(programName, optionalArgumentsList.get(i).getMessage());
-		}
+		}*/
 		
 		if(args.length > argumentList.size() + count){
 				String extraArgs = "";

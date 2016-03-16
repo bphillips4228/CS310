@@ -66,6 +66,22 @@ public class ParserTest{
 	}
 	
 	@Test
+	public void acceptanceTestSix(){
+		String[] args = {"-td"};
+		String[] type = {"type", "false"};
+		String[] digits = {"digits", "false"};
+		p.addOptionalArgument(type);
+		p.addOptionalArgument(digits);
+		p.setShortForm("type", "t");
+		p.setShortForm("digits", "d");
+		p.setOptionalArgumentType("type", Argument.dataType.BOOLEAN);
+		p.setOptionalArgumentType("digits", Argument.dataType.BOOLEAN);
+		p.parseValues(args);
+		assertEquals("true", p.getOptionalValue("type"));
+		assertEquals("true", p.getOptionalValue("digits"));
+	}
+	
+	@Test
 	public void acceptanceTestOne(){
 		String[] args = {"7", "5", "2"};
 		p.addArgument("length", Argument.dataType.FLOAT);
