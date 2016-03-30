@@ -8,13 +8,13 @@ public class Argument{
 	public enum dataType {STRING, BOOLEAN, FLOAT, INT};
 	private dataType valueType;
 	private String shortForm;
-	private String message;
+	private String description;
 	
 	public Argument(String name){
 		this.name = name;
 		this.valueType = dataType.STRING;
 		this.shortForm = "";
-		this.message = "";
+		this.description = "";
 	}
 	
 	public Argument(String name, dataType dataType){
@@ -34,12 +34,12 @@ public class Argument{
 		return shortForm;
 	}
 	
-	public void setMessage(String message){
-		this.message = message;
+	public void setDescription(String description){
+		this.description = description;
 	}
 	
-	public String getMessage(){
-		return message;
+	public String getDescription(){
+		return description;
 	}
 	
 	public String getName(){

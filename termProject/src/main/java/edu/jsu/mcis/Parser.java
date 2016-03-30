@@ -1,12 +1,12 @@
 package edu.jsu.mcis;
 import java.util.*;
 import java.lang.*;
+import javax.xml.*;
 
 public class Parser{
 	
 	private List<Argument> argumentList;
 	private List<Argument> optionalArgumentsList;
-	private String helpMessage;
 	private String programName;
 	
 	public Parser(){
@@ -28,11 +28,35 @@ public class Parser{
 		argumentList.add(new Argument(name, dataType));
 	}
 	
-	public void addOptionalArgument(String[] arg){
-		int index = 0;
-		optionalArgumentsList.add(new Argument(arg[0]));
-		index = getIndex(arg[0]);
-		optionalArgumentsList.get(index).setValue(arg[1]);
+	public void addOptionalArgument(String name, String value){
+		optionalArgumentsList.add(new Argument(name));
+		int k = getIndex(name);
+		optionalArgumentsList.get(k).setValue(value);
+	}
+	
+	public void addOptionalArgument(String name, String value, Argument.dataType dataType){
+		optionalArgumentsList.add(new Argument(name));
+		int k = getIndex(name);
+		optionalArgumentsList.get(k).setValue(value);
+		optionalArgumentsList.get(k).setDataType(dataType);
+	}
+	
+	
+	public void addOptionalArgument(String name, String value, Argument.dataType dataType, String shortForm){
+		optionalArgumentsList.add(new Argument(name));
+		int k = getIndex(name);
+		optionalArgumentsList.get(k).setValue(value);
+		optionalArgumentsList.get(k).setDataType(dataType);
+		optionalArgumentsList.get(k).setShortForm(shortForm);
+	}
+	
+	public void addOptionalArgument(String name, String value, Argument.dataType dataType, String shortForm, String description){
+		optionalArgumentsList.add(new Argument(name));
+		int k = getIndex(name);
+		optionalArgumentsList.get(k).setValue(value);
+		optionalArgumentsList.get(k).setDataType(dataType);
+		optionalArgumentsList.get(k).setShortForm(shortForm);
+		optionalArgumentsList.get(k).setDescription(description);
 	}
 	
 	public void setOptionalArgumentType(String name, Argument.dataType dataType){
@@ -52,11 +76,6 @@ public class Parser{
 	public void setShortForm(String arg, String shortForm){
 		int index = getIndex(arg);
 		optionalArgumentsList.get(index).setShortForm(shortForm);
-	}
-	
-	public String shortForm(String arg){
-		int index = getIndex(arg);
-		return optionalArgumentsList.get(index).getShortForm();
 	}
 	
 	public void parseValues(String[] args){
@@ -96,16 +115,13 @@ public class Parser{
 			}
 		}
 		
-		if(getOptionalValue("help").equals("true")){
-			int k = getIndex("help");
-			throw new HelpException(programName, optionalArgumentsList.get(k).getMessage());
-		}
-			
-		/*for(int i = 0; i < optionalArgumentsList.size(); i++){
-			if(optionalArgumentsList.get(i).getDataType() ==  Argument.dataType.BOOLEAN)
+		for(int i = 0; i < optionalArgumentsList.size(); i++){
+			if(optionalArgumentsList.get(i).getName().equals("help"))
 				if(optionalArgumentsList.get(i).getValue() == "true")
-					throw new HelpException(programName, optionalArgumentsList.get(i).getMessage());
-		}*/
+					throw new HelpException(programName, optionalArgumentsList.get(i).getDescription());
+		}
+		
+
 		
 		if(args.length > argumentList.size() + count){
 				String extraArgs = "";
@@ -126,13 +142,25 @@ public class Parser{
 		for(int i = 0; i < argumentList.size(); i++){
 			String argList = "";
 			argumentList.get(i).setValue(newArgsList.get(i));
-			if(!checkdataType(argumentList.get(i).getName())){
+			if(!checkDataType(argumentList.get(i).getName())){
 				for(int j = 0; j < argumentList.size(); j++){
 					String temp = argumentList.get(j).getName();
 					argList += temp + " ";
 				}
 				throw new WrongTypeException(argumentList.get(i).getValue(), dataTypeToString(argumentList.get(i)), programName, argList, argumentList.get(i).getName());
 			}
+		}
+		
+		for(int i = 0; i < optionalArgumentsList.size(); i++){
+			String argList = "";
+			if (!checkDataType(optionalArgumentsList.get(i).getName())){
+				for(int j = 0; j < optionalArgumentsList.size(); j++){
+					String temp = optionalArgumentsList.get(j).getName();
+					argList += temp + " ";
+				}
+				throw new WrongTypeException(optionalArgumentsList.get(i).getValue(), dataTypeToString(optionalArgumentsList.get(i)), programName, argList, optionalArgumentsList.get(i).getName());
+			}
+			
 		}
 
 	}
@@ -143,7 +171,7 @@ public class Parser{
 				return argumentList.get(i).getValue();
 		}
 		
-		return "";
+		throw new NoValueFoundException(arg);
 	}
 	
 	public String getOptionalValue(String arg){
@@ -152,7 +180,7 @@ public class Parser{
 				return optionalArgumentsList.get(i).getValue();
 		}
 		
-		return "";
+		throw new NoValueFoundException(arg);
 	}
 	
 	private int getIndex(String arg){
@@ -160,25 +188,28 @@ public class Parser{
 			if((optionalArgumentsList.get(i).getName().equals(arg)) || (optionalArgumentsList.get(i).getShortForm().equals(arg)))
 				return i;
 		}
-		return -1;
+		
+		throw new OptionalArgumentDoesNotExistException(arg, programName);
+		
 	}
 	
-	private boolean checkdataType(String arg){
-		for(int i = 0; i < argumentList.size(); i++){
-			if(argumentList.get(i).getName().equals(arg)){
-				Argument.dataType argType = argumentList.get(i).getDataType();
+	private boolean checkDataType(String arg){
+		int k = 0;
+		try{
+			k = getIndex(arg);
+			Argument.dataType argType = optionalArgumentsList.get(k).getDataType();
 				int tempInt;
 				float tempFloat;
 				if(argType.equals(Argument.dataType.BOOLEAN)){
-					if(argumentList.get(i).getValue().equals("true") || argumentList.get(i).getValue().equals("false"))
+					if(optionalArgumentsList.get(k).getValue().equals("true") || optionalArgumentsList.get(k).getValue().equals("false"))
 						return true;
 					else 
 						return false;
 				}
-				
+					
 				else if(argType.equals(Argument.dataType.INT)){
 					try{
-						tempInt = Integer.parseInt(argumentList.get(i).getValue());
+						tempInt = Integer.parseInt(optionalArgumentsList.get(k).getValue());
 					} catch(NumberFormatException ex){
 						return false;
 					}
@@ -187,28 +218,67 @@ public class Parser{
 				
 				else if(argType.equals(Argument.dataType.FLOAT)){
 					try{
-						tempFloat = Float.parseFloat(argumentList.get(i).getValue());
+						tempFloat = Float.parseFloat(optionalArgumentsList.get(k).getValue());
 					} catch(NumberFormatException ex){
 						return false;
 					}
 					return true;
 				}
-				
+					
 				else if(argType.equals(Argument.dataType.STRING)){
 					return true;
 				}
-				
+					
 				else 
 					return false;
-				
+					
+		}catch(OptionalArgumentDoesNotExistException OpArgException){
+			for(int i = 0; i < argumentList.size(); i++){
+				if(argumentList.get(i).getName().equals(arg)){
+					Argument.dataType argType = argumentList.get(i).getDataType();
+					int tempInt;
+					float tempFloat;
+					if(argType.equals(Argument.dataType.BOOLEAN)){
+						if(argumentList.get(i).getValue().equals("true") || argumentList.get(i).getValue().equals("false"))
+							return true;
+						else 
+							return false;
+					}
+					
+					else if(argType.equals(Argument.dataType.INT)){
+						try{
+							tempInt = Integer.parseInt(argumentList.get(i).getValue());
+						} catch(NumberFormatException ex){
+							return false;
+						}
+						return true;
+					}
+					
+					else if(argType.equals(Argument.dataType.FLOAT)){
+						try{
+							tempFloat = Float.parseFloat(argumentList.get(i).getValue());
+						} catch(NumberFormatException ex){
+							return false;
+						}
+						return true;
+					}
+					
+					else if(argType.equals(Argument.dataType.STRING)){
+						return true;
+					}
+					
+					else 
+						return false;
+					
+				}
 			}
 		}
 		return false;
 	}
 	
-	public void setArgumentMessage(String arg, String message){
+	public void setArgumentDescription(String arg, String description){
 		int index = getIndex(arg);
-		optionalArgumentsList.get(index).setMessage(message);
+		optionalArgumentsList.get(index).setDescription(description);
 	}
 	
 	public void setProgramName(String name){
@@ -226,5 +296,6 @@ public class Parser{
 		else
 			return "String";
 	}
+	
 }
 	

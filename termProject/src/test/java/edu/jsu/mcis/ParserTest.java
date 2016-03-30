@@ -13,17 +13,15 @@ public class ParserTest{
 		p = new Parser();
 	}
 	
-	@Test
+	@Test(expected = NoValueFoundException.class)
 	public void testThatNewInstanceHasNoArgumentValue(){
-		assertEquals("", p.getValue("length"));
+		p.getValue("length");
 	}
 	
 	@Test
 	public void testThatUserArgumentIsAdded(){
-		String[] args = {"type", "box"};
 		String[] values = {"--type", "box"};
-		p.addOptionalArgument(args);
-		p.setShortForm("type", "t");
+		p.addOptionalArgument("type", "box", Argument.dataType.STRING, "t");
 		p.parseValues(values);
 		assertEquals("box", p.getOptionalValue("type"));
 	}
@@ -39,24 +37,24 @@ public class ParserTest{
 	@Test(expected = HelpException.class)
 	public void testThatHelpExceptionIsThrown(){
 		p.setProgramName("program");
-		String[] arg = {"help", "false"};
 		String[] values = {"-h"};
-		p.addOptionalArgument(arg);
-		p.setOptionalArgumentType("help", Argument.dataType.BOOLEAN);
-		p.setArgumentMessage("help", "poop");
-		p.setShortForm("help", "h");
+		p.addOptionalArgument("help", "false", Argument.dataType.BOOLEAN, "h", "poop");
 		p.parseValues(values);
+	}
+	
+	@Test(expected = OptionalArgumentDoesNotExistException.class)
+	public void testThatOptionalArgumentDoesNotExistExceptionIsThrown(){
+		String[] args = {"-h"};
+		p.parseValues(args);
 	}
 	
 	@Test
 	public void acceptanceTestFive(){
 		String[] names = {"length", "width", "height"};
-		String[] type = {"type", "box"};
-		String[] digits = {"digits", "4"};
 		String[] values = {"--type", "ellipsoid", "7", "3", "--digits", "1", "2"};
 		p.addArguments(names);
-		p.addOptionalArgument(type);
-		p.addOptionalArgument(digits);
+		p.addOptionalArgument("type", "box");
+		p.addOptionalArgument("digits", "4");
 		p.parseValues(values);
 		assertEquals("7", p.getValue("length"));
 		assertEquals("3", p.getValue("width"));
@@ -68,14 +66,8 @@ public class ParserTest{
 	@Test
 	public void acceptanceTestSix(){
 		String[] args = {"-td"};
-		String[] type = {"type", "false"};
-		String[] digits = {"digits", "false"};
-		p.addOptionalArgument(type);
-		p.addOptionalArgument(digits);
-		p.setShortForm("type", "t");
-		p.setShortForm("digits", "d");
-		p.setOptionalArgumentType("type", Argument.dataType.BOOLEAN);
-		p.setOptionalArgumentType("digits", Argument.dataType.BOOLEAN);
+		p.addOptionalArgument("type", "false", Argument.dataType.BOOLEAN, "t");
+		p.addOptionalArgument("digits", "false", Argument.dataType.BOOLEAN, "d");
 		p.parseValues(args);
 		assertEquals("true", p.getOptionalValue("type"));
 		assertEquals("true", p.getOptionalValue("digits"));
@@ -87,10 +79,8 @@ public class ParserTest{
 		p.addArgument("length", Argument.dataType.FLOAT);
 		p.addArgument("width", Argument.dataType.FLOAT);
 		p.addArgument("height", Argument.dataType.FLOAT);
-		String[] type = {"type", "box"};
-		String[] digits = {"digits", "4"};
-		p.addOptionalArgument(type);
-		p.addOptionalArgument(digits);
+		p.addOptionalArgument("type", "box");
+		p.addOptionalArgument("digits", "4");
 		p.parseValues(args);
 		float volume;
 		float h = Float.parseFloat(p.getValue("height"));
@@ -106,6 +96,13 @@ public class ParserTest{
 		String[] values = {"5", "5"};
 		String[] args = {"length", "width", "height"};
 		p.addArguments(args);
+		p.parseValues(values);
+	}
+	
+	@Test(expected = WrongTypeException.class)
+	public void testForWrongTypeExceptionWithFloatOptional(){
+		String[] values = {"--type", "something"};
+		p.addOptionalArgument("type", "1", Argument.dataType.INT);
 		p.parseValues(values);
 	}
 	

@@ -35,10 +35,10 @@ public class ArgumentTest{
 	}
 	
 	@Test
-	public void testThatMessageIsSet(){
+	public void testThatDescriptionIsSet(){
 		a = new Argument("help", Argument.dataType.BOOLEAN);
-		a.setMessage("asdf");
-		assertEquals("asdf", a.getMessage());
+		a.setDescription("asdf");
+		assertEquals("asdf", a.getDescription());
 	}
 	
 	@Test
