@@ -12,7 +12,11 @@ public class XMLTest {
 	public void setUp() {
 		p = new Parser();
 		x = new XmlTool();
-		p = x.load("./src/test/java/edu/jsu/mcis/loadFile.xml");
+	}
+	
+	@Test
+	public void testThatFileLoads(){
+		p = x.load("loadFile.xml");
 	}
 	
 	@Test(expected = XMLException.class)
@@ -24,10 +28,4 @@ public class XMLTest {
 	public void testFileNotXMLExtension(){
 		x.load("thisfiledoesnotexist");
 	}
-	
-	/*@Test
-	public void testLoadFile() {
-		String value = n.getValue("length");
-		assertEquals("TestLoad", n.getProgramName());
-	}*/
 }
