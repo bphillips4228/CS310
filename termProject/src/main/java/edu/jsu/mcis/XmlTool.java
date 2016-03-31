@@ -1,67 +1,84 @@
 package edu.jsu.mcis;
 
 import java.util.*;
-import org.xml.sax.*;
-import org.xml.sax.helpers.*;
-import java.io.*;
-import org.w3c.dom.*;
-import javax.xml.parsers.*;
-import javax.xml.transform.*;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
+import java.io.File;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+import org.xml.sax.Attributes;
+import org.xml.sax.SAXException;
+import org.xml.sax.helpers.DefaultHandler;
 
 public class XmlTool{
 	
 	public Parser load(String fileName){
 		Parser p = new Parser();
-		XmlHandler handler = new XmlHandler();
 		try{
-			if(fileName.contains(".xml")){
-				File xmlFile = new File(fileName);
-				SAXParserFactory parserFactory = SAXParserFactory.newInstance();
-				SAXParser saxParser = parserFactory.newSAXParser();
-				saxParser.parse(xmlFile, handler);
-				p = handler.getParser();
-				return p;
-			}
-			else
-				throw new XMLException("The File must contain a .xml extension.");
+			File xmlFile = new File(fileName);
+			SAXParserFactory parserFactory = SAXParserFactory.newInstance();
+			SAXParser saxParser = parserFactory.newSAXParser();
+			XmlHandler handler = new XmlHandler();
+			saxParser.parse(xmlFile, handler);
+			p = handler.getParser();
+			return p;
 		} catch (Exception ex){
-			throw new NoValueFoundException("poop");
+			throw new XMLException("Something went wrong.");
 		}
 		
 	}
 	
 
 	private class XmlHandler extends DefaultHandler{
-		Map<String, Boolean> xmlMap;
 		private String name, value, shortName, description;
 		private Argument.dataType dataType;
-		private int position; 
+		private int positionValue; 
 		private Parser p;
-		private final String[] XmlTags = {"arguments", "positional", "named", "name", "type", "shortName", "default", "position"};
+		private boolean argumentsBool, positionalBool, namedBool, nameBool, typeBool, shortNameBool, defaultValueBool, positionBool, descriptionBool;
 		
 		public XmlHandler(){
 			p = new Parser();
-			xmlMap = new HashMap<String, Boolean>();
 			name = "";
 			description = "";
 			value = "";
 			shortName = "";
-			for(String s: XmlTags)
-					xmlMap.put(s, false);
+			descriptionBool = false;
+			argumentsBool = false;
+			positionalBool = false;
+			namedBool = false;
+			nameBool = false;
+			typeBool = false;
+			shortNameBool = false;
+			defaultValueBool = false;
+			positionBool = false;
 		}
 		
+		@Override
 		public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
 			String currentTag = qName.toLowerCase();
-			if(xmlMap.containsKey(currentTag))
-				xmlMap.put(currentTag, true);
+			if(currentTag.equals("arguments"))
+				argumentsBool = true;
+			else if(currentTag.equals("positional"))
+				positionalBool = true;
+			else if(currentTag.equals("named"))
+				namedBool = true;
+			else if(currentTag.equals("name"))
+				nameBool = true;
+			else if(currentTag.equals("type"))
+				typeBool = true;
+			else if(currentTag.equals("shortName"))
+				shortNameBool = true;
+			else if(currentTag.equals("default"))
+				defaultValueBool = true;
+			else if(currentTag.equals("position"))
+				positionBool = true;
+			else if(currentTag.equals("description"))
+				descriptionBool = true;
 		}
 		
+		@Override
 		public void endElement(String uri, String localName, String qName){
-			String tag = qName.toLowerCase();
+			String currentTag = qName.toLowerCase();
 			
-			if(tag.equals("named")){
+			if(currentTag.equals("named")){
 				if(shortName != "")
 					p.addOptionalArgument(name, value, dataType, shortName);
 				else
@@ -71,44 +88,61 @@ public class XmlTool{
 				shortName = "";
 				value = "";
 			}
-			else if(tag.equals("positional")){
+			else if(currentTag.equals("positional")){
 				p.addArgument(name, dataType);
 				name = "";
 				dataType = Argument.dataType.STRING;
 			}
 			
-			if(xmlMap.get(tag))
-				xmlMap.put(tag, false);
+			if(currentTag.equals("arguments"))
+				argumentsBool = false;
+			else if(currentTag.equals("positional"))
+				positionalBool = false;
+			else if(currentTag.equals("named"))
+				namedBool = false;
+			else if(currentTag.equals("name"))
+				nameBool = false;
+			else if(currentTag.equals("type"))
+				typeBool = false;
+			else if(currentTag.equals("shortName"))
+				shortNameBool = false;
+			else if(currentTag.equals("default"))
+				defaultValueBool = false;
+			else if(currentTag.equals("position"))
+				positionBool = false;
+			else if(currentTag.equals("description"))
+				descriptionBool = true;
 		}
 		
-		public void characters(char ch[], int start, int length){
+		@Override
+		public void characters(char ch[], int start, int length) throws SAXException{
 			String s = "";
 			for(int i = start; i < start + length; i++){
 				s += String.valueOf(ch[i]);
 			}
-			if(xmlMap.get("arguments")){
-				if(xmlMap.get("positional")){
-					if(xmlMap.get("name"))
+			if(argumentsBool){
+				if(positionalBool){
+					if(nameBool)
 						name = s;
-					else if(xmlMap.get("type"))
+					else if(typeBool)
 						dataType = dataTypeConversion(s);
-					else if(xmlMap.get("description"))
+					else if(descriptionBool)
 						description = s;
-					else if(xmlMap.get("position"))
-						position = Integer.parseInt(s);
+					else if(positionBool)
+						positionValue = Integer.parseInt(s);
 				}
-				else if(xmlMap.get("named")){
-					if(xmlMap.get("name"))
+				else if(namedBool){
+					if(nameBool)
 						name = s;
-					else if(xmlMap.get("type"))
+					else if(typeBool)
 						dataType = dataTypeConversion(s);
-					else if(xmlMap.get("description"))
+					else if(descriptionBool)
 						description = s;
-					else if(xmlMap.get("position"))
-						position = Integer.parseInt(s);
-					else if(xmlMap.get("shortName"))
+					else if(positionBool)
+						positionValue = Integer.parseInt(s);
+					else if(shortNameBool)
 						shortName = s;
-					else if(xmlMap.get("default"))
+					else if(defaultValueBool)
 						value = s;
 				}
 			}

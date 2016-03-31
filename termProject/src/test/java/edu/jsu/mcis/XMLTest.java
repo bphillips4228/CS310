@@ -16,16 +16,16 @@ public class XMLTest {
 	
 	@Test
 	public void testThatFileLoads(){
-		p = x.load("loadFile.xml");
+		p = x.load("./src/test/java/edu/jsu/mcis/testLoadFile.xml");
 	}
 	
 	@Test(expected = XMLException.class)
 	public void testWithFileNotFound(){
-		x.load("thisfiledoesnotexist.xml");
+		p = x.load("thisfiledoesnotexist.xml");
 	}
 	
 	@Test(expected = XMLException.class)
-	public void testFileNotXMLExtension(){
-		x.load("thisfiledoesnotexist");
+	public void testFileNoXMLExtension(){
+		p = x.load("thisfiledoesnothavexmlextension");
 	}
 }
