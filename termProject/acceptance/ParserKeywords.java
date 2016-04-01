@@ -11,11 +11,7 @@ public class ParserKeywords{
 		p.addArgument("length", Argument.dataType.FLOAT);
 		p.addArgument("width", Argument.dataType.FLOAT);
 		p.addArgument("height", Argument.dataType.FLOAT);
-		String[] help = {"help", "false"};
-		p.addOptionalArgument(help);
-		p.setArgumentMessage("help", "length width height\nCalcuate the volume of a box.\npositional arguments:\n   length the length of the box (float)\n   width the width of the box(float)\n   height the height of the box(float)");
-		p.setOptionalArgumentType("help", Argument.dataType.BOOLEAN);
-		p.setShortForm("help", "h");
+		p.addOptionalArgument("help", "false", Argument.dataType.BOOLEAN, "h", "length width height\nCalcuate the volume of a box.\npositional arguments:\n   length the length of the box (float)\n   width the width of the box(float)\n   height the height of the box(float)");
 		try{
 			p.parseValues(args);
 		}
@@ -32,12 +28,8 @@ public class ParserKeywords{
 		p.addArgument("length", Argument.dataType.FLOAT);
 		p.addArgument("width", Argument.dataType.FLOAT);
 		p.addArgument("height", Argument.dataType.FLOAT);
-		String[] type = {"type", "box"};
-		String[] digits = {"digits", "4"};
-		p.addOptionalArgument(type);
-		p.addOptionalArgument(digits);
-		p.setShortForm("type", "t");
-		p.setShortForm("digits", "d");
+		p.addOptionalArgument("type", "box", Argument.dataType.STRING, "t");
+		p.addOptionalArgument("digits", "4", Argument.dataType.INT, "d");
 		try {
 			p.parseValues(args);
 			float volume;
