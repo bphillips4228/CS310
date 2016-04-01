@@ -16,7 +16,7 @@ public class XMLTest {
 	
 	@Test
 	public void testThatFileLoads(){
-		p = x.load("./src/test/java/edu/jsu/mcis/testLoadFile.xml");
+		p = x.load("./src/test/java/edu/jsu/mcis/loadFile.xml");
 	}
 	
 	@Test(expected = XMLException.class)
@@ -27,5 +27,13 @@ public class XMLTest {
 	@Test(expected = XMLException.class)
 	public void testFileNoXMLExtension(){
 		p = x.load("thisfiledoesnothavexmlextension");
+	}
+	
+	@Test
+	public void testThatFileIsStoredInParser(){
+		p = x.load("./src/test/java/edu/jsu/mcis/loadFile.xml");
+		assertTrue(p.containsName("length"));
+		assertTrue(p.containsName("width"));
+		assertTrue(p.containsName("height"));
 	}
 }

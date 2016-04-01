@@ -21,14 +21,20 @@
         <default>box</default>
     </named>
 	<named>
-        <name>poop</name>
+        <name>squirrel</name>
         <type>string</type>
-        <default>turd</default>
+        <default>animal</default>
     </named>
     <named>
         <name>digits</name>
         <shortname>d</shortname>
         <type>integer</type>
         <default>4</default>
+    </named>
+	<named>
+        <name>blue</name>
+        <type>Boolean</type>
+        <default>false</default>
+		<description>blah</description>
     </named>
 </arguments>

@@ -1,7 +1,8 @@
 package edu.jsu.mcis;
 
 import java.util.*;
-import java.io.File;
+import java.io.*;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import org.xml.sax.Attributes;
@@ -13,7 +14,7 @@ public class XmlTool{
 	public Parser load(String fileName){
 		Parser p = new Parser();
 		try{
-			File xmlFile = new File(fileName);
+			InputStream xmlFile = new FileInputStream(fileName);
 			SAXParserFactory parserFactory = SAXParserFactory.newInstance();
 			SAXParser saxParser = parserFactory.newSAXParser();
 			XmlHandler handler = new XmlHandler();
@@ -51,7 +52,6 @@ public class XmlTool{
 			positionBool = false;
 		}
 		
-		@Override
 		public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
 			String currentTag = qName.toLowerCase();
 			if(currentTag.equals("arguments"))
@@ -64,7 +64,7 @@ public class XmlTool{
 				nameBool = true;
 			else if(currentTag.equals("type"))
 				typeBool = true;
-			else if(currentTag.equals("shortName"))
+			else if(currentTag.equals("shortname"))
 				shortNameBool = true;
 			else if(currentTag.equals("default"))
 				defaultValueBool = true;
@@ -74,7 +74,6 @@ public class XmlTool{
 				descriptionBool = true;
 		}
 		
-		@Override
 		public void endElement(String uri, String localName, String qName){
 			String currentTag = qName.toLowerCase();
 			
@@ -84,7 +83,6 @@ public class XmlTool{
 				else
 					p.addOptionalArgument(name, value, dataType);
 				name = "";
-				description = "";
 				shortName = "";
 				value = "";
 			}
@@ -104,7 +102,7 @@ public class XmlTool{
 				nameBool = false;
 			else if(currentTag.equals("type"))
 				typeBool = false;
-			else if(currentTag.equals("shortName"))
+			else if(currentTag.equals("shortname"))
 				shortNameBool = false;
 			else if(currentTag.equals("default"))
 				defaultValueBool = false;
@@ -114,36 +112,31 @@ public class XmlTool{
 				descriptionBool = true;
 		}
 		
-		@Override
 		public void characters(char ch[], int start, int length) throws SAXException{
-			String s = "";
-			for(int i = start; i < start + length; i++){
-				s += String.valueOf(ch[i]);
-			}
 			if(argumentsBool){
 				if(positionalBool){
 					if(nameBool)
-						name = s;
+						name = new String(ch, start, length);
 					else if(typeBool)
-						dataType = dataTypeConversion(s);
+						dataType = dataTypeConversion(new String(ch, start, length));
 					else if(descriptionBool)
-						description = s;
+						description = new String(ch, start, length);
 					else if(positionBool)
-						positionValue = Integer.parseInt(s);
+						positionValue = Integer.parseInt(new String(ch, start, length));
 				}
 				else if(namedBool){
 					if(nameBool)
-						name = s;
+						name = new String(ch, start, length);
 					else if(typeBool)
-						dataType = dataTypeConversion(s);
+						dataType = dataTypeConversion(new String(ch, start, length));
 					else if(descriptionBool)
-						description = s;
+						description = new String(ch, start, length);
 					else if(positionBool)
-						positionValue = Integer.parseInt(s);
+						positionValue = Integer.parseInt(new String(ch, start, length));
 					else if(shortNameBool)
-						shortName = s;
+						shortName = new String(ch, start, length);
 					else if(defaultValueBool)
-						value = s;
+						value = new String(ch, start, length);
 				}
 			}
 		}

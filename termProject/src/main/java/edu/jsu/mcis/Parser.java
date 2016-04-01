@@ -78,6 +78,11 @@ public class Parser{
 		optionalArgumentsList.get(index).setShortForm(shortForm);
 	}
 	
+	public String getShortForm(String arg){
+		int index = getIndex(arg);
+		return optionalArgumentsList.get(index).getShortForm();
+	}
+	
 	public void parseValues(String[] args){
 		int count = 0;
 		List<String> newArgsList = new ArrayList<String>(Arrays.asList(args));
@@ -281,11 +286,16 @@ public class Parser{
 		optionalArgumentsList.get(index).setDescription(description);
 	}
 	
+	public String getArgumentDescription(String arg){
+		int index = getIndex(arg);
+		return optionalArgumentsList.get(index).getDescription();
+	}
+	
 	public void setProgramName(String name){
 		this.programName = name;
 	}
 	
-	private String dataTypeToString(Argument arg){
+	public String dataTypeToString(Argument arg){
 		Argument.dataType type = arg.getDataType();
 		if(type == (Argument.dataType.BOOLEAN))
 			return "Boolean";
@@ -295,6 +305,11 @@ public class Parser{
 			return "float";
 		else
 			return "String";
+	}
+	
+	public Argument.dataType getDataType(String arg){
+		int index = getIndex(arg);
+		return optionalArgumentsList.get(index).getDataType();
 	}
 	
 }

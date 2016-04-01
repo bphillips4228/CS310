@@ -19,6 +19,78 @@ public class ParserTest{
 	}
 	
 	@Test
+	public void testThatArgumentDescriptionIsSet(){
+		p.addOptionalArgument("asdf", "asdf", Argument.dataType.STRING);
+		p.setArgumentDescription("asdf", "asfd");
+		p.setShortForm("asdf", "a");
+		assertEquals("asfd", p.getArgumentDescription("asdf"));
+		assertEquals("a", p.getShortForm("a"));
+	}
+	
+	@Test
+	public void testSetOptionalArgumentTest(){
+		p.addOptionalArgument("poop", "poop");
+		p.setOptionalArgumentType("poop", Argument.dataType.STRING);
+		assertEquals(Argument.dataType.STRING, p.getDataType("poop"));
+	}
+	
+	@Test
+	public void testForOptionalFloatValue(){
+		String[] args = {"-l", "1.0"};
+		p.addOptionalArgument("length", "0.0", Argument.dataType.FLOAT, "l");
+		p.parseValues(args);
+		assertEquals(Argument.dataType.FLOAT, p.getDataType("length"));
+	}
+	
+	@Test
+	public void testForOptionalIntValue(){
+		String[] args = {"-l", "1"};
+		p.addOptionalArgument("length", "0", Argument.dataType.INT, "l");
+		p.parseValues(args);
+		assertEquals(Argument.dataType.INT, p.getDataType("length"));
+	}
+	
+	@Test
+	public void testTooFewArgsExceptionArgs(){
+		String[] args = {"length", "width", "height"};
+		String [] values = {"1", "1"};
+		String extraArgs = "";
+		p.addArguments(args);
+		try{
+			p.parseValues(values);
+		} catch(TooFewArgsException ex){
+			extraArgs = ex.getExtraArgs();
+		}
+		assertEquals("height ", extraArgs);
+	}
+	
+	@Test
+	public void testTooManyArgsExceptionArgs(){
+		String[] args = {"length", "width", "height"};
+		String [] values = {"1", "1", "1", "1"};
+		String extraArgs = "";
+		p.addArguments(args);
+		try{
+			p.parseValues(values);
+		} catch(TooManyArgsException ex){
+			extraArgs = ex.getExtraArgs();
+		}
+		assertEquals("1", extraArgs);
+	}
+	
+	@Test(expected = NoValueFoundException.class)
+	public void testForOptionalValueNotFound(){
+		p.getOptionalValue("length");
+	}
+	
+	@Test(expected = WrongTypeException.class)
+	public void testForOptionalArgumentWrongType(){
+		String[] args = {"-l", "string"};
+		p.addOptionalArgument("length", "0.0", Argument.dataType.FLOAT, "l");
+		p.parseValues(args);
+	}
+	
+	@Test
 	public void testThatUserArgumentIsAdded(){
 		String[] values = {"--type", "box"};
 		p.addOptionalArgument("type", "box", Argument.dataType.STRING, "t");
