@@ -8,6 +8,7 @@ public class Parser{
 	private List<Argument> argumentList;
 	private List<Argument> optionalArgumentsList;
 	private String programName;
+	private int count = 0;
 	
 	public Parser(){
 		argumentList = new ArrayList<Argument>();
@@ -41,7 +42,6 @@ public class Parser{
 		optionalArgumentsList.get(k).setDataType(dataType);
 	}
 	
-	
 	public void addOptionalArgument(String name, String value, Argument.dataType dataType, String shortForm){
 		optionalArgumentsList.add(new Argument(name));
 		int k = getIndex(name);
@@ -57,6 +57,16 @@ public class Parser{
 		optionalArgumentsList.get(k).setDataType(dataType);
 		optionalArgumentsList.get(k).setShortForm(shortForm);
 		optionalArgumentsList.get(k).setDescription(description);
+	}
+	
+	public void setRestrictedValues(String name, String[] restrictedValues){
+		int k = getIndex(name);
+		optionalArgumentsList.get(k).setRestrictedValues(restrictedValues);
+	}
+	
+	public String[] getRestrictedValues(String name){
+		int k = getIndex(name);
+		return optionalArgumentsList.get(k).getRestrictedValues().toArray(new String[optionalArgumentsList.get(k).getRestrictedValues().size()]);
 	}
 	
 	public void setOptionalArgumentType(String name, Argument.dataType dataType){
@@ -84,9 +94,47 @@ public class Parser{
 	}
 	
 	public void parseValues(String[] args){
-		int count = 0;
-		List<String> newArgsList = new ArrayList<String>(Arrays.asList(args));
+		checkForRequiredArgument(args);
+		List<String> newArgsList = handleOptionalArguments(args);
+		checkForHelpException();
+		checkForTooManyArguments(args);
+		checkForTooFewArguments(args);
 		
+		for(int i = 0; i < argumentList.size(); i++){
+			argumentList.get(i).setValue(newArgsList.get(i));
+			checkForWrongDataType(i);
+		}
+		
+	}
+	
+	private void checkForRequiredArgument(String[] args){
+		List<Argument> requiredArgs = new ArrayList<Argument>();
+		int temp = 0;
+		if(optionalArgumentsList.size() > 0){
+			for(int i = 0; i < optionalArgumentsList.size(); i++){
+				if(optionalArgumentsList.get(i).isRequired())
+					requiredArgs.add(optionalArgumentsList.get(i));
+			}
+			
+			for(int i = 0; i < requiredArgs.size(); i++){
+				for(int j = 0; i < args.length; j++){
+					if(requiredArgs.get(i).getName() == args[j] || requiredArgs.get(i).getShortForm() == args[j])
+						temp++;
+				}
+			}
+			
+			if(temp > 0){
+				String argNames = "";
+				for(int i = 0; i < requiredArgs.size(); i++){
+					argNames += requiredArgs.get(i).getName() + " ";
+				}
+				throw new RequiredArgumentException(argNames);
+			}
+		}
+	}
+	
+	private List<String> handleOptionalArguments(String[] args){
+		List<String> newArgsList = new ArrayList<String>(Arrays.asList(args));
 		for(int i = 0; i < args.length; i++){
 			int k = 0;
 			if((args[i].charAt(0) == '-')){
@@ -106,53 +154,34 @@ public class Parser{
 					newArgsList.remove(args[i]);
 			    }
 				else{
+					int restrictedCount = 0;
 					k = getIndex(argument);
 					if(k > -1){
 						if(optionalArgumentsList.get(k).getDataType() == Argument.dataType.BOOLEAN){
 							optionalArgumentsList.get(k).setValue("true");
 							break;
 						}
-						optionalArgumentsList.get(k).setValue(args[i+1]);
-						newArgsList.remove(args[i+1]);
-						count++;
+						if(optionalArgumentsList.get(k).getRestrictedValues().size() > 0){
+							for(int j = 0; j < optionalArgumentsList.get(k).getRestrictedValues().size(); j++){
+								if(args[i+1] == optionalArgumentsList.get(k).getRestrictedValues().get(j)){
+									optionalArgumentsList.get(k).setValue(args[i+1]);
+									newArgsList.remove(args[i+1]);
+									count++;
+									break;
+								}
+								else
+									restrictedCount++;
+							}
+							if(restrictedCount == optionalArgumentsList.get(k).getRestrictedValues().size())
+								throw new RestrictedValueException(args[i+1], args[i]);
+						}
+						else{
+							optionalArgumentsList.get(k).setValue(args[i+1]);
+							newArgsList.remove(args[i+1]);
+							count++;
+						}
 					}
 				}
-			}
-		}
-		
-		for(int i = 0; i < optionalArgumentsList.size(); i++){
-			if(optionalArgumentsList.get(i).getName().equals("help"))
-				if(optionalArgumentsList.get(i).getValue() == "true")
-					throw new HelpException(programName, optionalArgumentsList.get(i).getDescription());
-		}
-		
-
-		
-		if(args.length > argumentList.size() + count){
-				String extraArgs = "";
-				for(int i = argumentList.size(); i < args.length; i++) {
-					extraArgs += args[i];
-				}
-				throw new TooManyArgsException(extraArgs);
-		}
-		
-		else if(args.length < argumentList.size() + count){
-				String extraArgs = "";
-				for(int i = args.length; i < argumentList.size(); i++){
-					extraArgs += argumentList.get(i).getName() + " ";
-				}
-				throw new TooFewArgsException(extraArgs);
-		}
-		
-		for(int i = 0; i < argumentList.size(); i++){
-			String argList = "";
-			argumentList.get(i).setValue(newArgsList.get(i));
-			if(!checkDataType(argumentList.get(i).getName())){
-				for(int j = 0; j < argumentList.size(); j++){
-					String temp = argumentList.get(j).getName();
-					argList += temp + " ";
-				}
-				throw new WrongTypeException(argumentList.get(i).getValue(), dataTypeToString(argumentList.get(i)), programName, argList, argumentList.get(i).getName());
 			}
 		}
 		
@@ -167,7 +196,47 @@ public class Parser{
 			}
 			
 		}
-
+		
+		return newArgsList;
+	}
+	
+	private void checkForHelpException(){
+		for(int i = 0; i < optionalArgumentsList.size(); i++){
+			if(optionalArgumentsList.get(i).getName().equals("help"))
+				if(optionalArgumentsList.get(i).getValue() == "true")
+					throw new HelpException(programName, optionalArgumentsList.get(i).getDescription());
+		}
+	}
+	
+	private void checkForTooManyArguments(String[] args){
+		if(args.length > argumentList.size() + count){
+				String extraArgs = "";
+				for(int i = argumentList.size(); i < args.length; i++) {
+					extraArgs += args[i];
+				}
+				throw new TooManyArgsException(extraArgs);
+		}
+	}
+	
+	private void checkForTooFewArguments(String[] args){
+		if(args.length < argumentList.size() + count){
+				String extraArgs = "";
+				for(int i = args.length; i < argumentList.size(); i++){
+					extraArgs += argumentList.get(i).getName() + " ";
+				}
+				throw new TooFewArgsException(extraArgs);
+		}
+	}
+	
+	private void checkForWrongDataType(int i){
+		String argList = "";
+		if(!checkDataType(argumentList.get(i).getName())){
+				for(int j = 0; j < argumentList.size(); j++){
+					String temp = argumentList.get(j).getName();
+					argList += temp + " ";
+				}
+				throw new WrongTypeException(argumentList.get(i).getValue(), dataTypeToString(argumentList.get(i)), programName, argList, argumentList.get(i).getName());
+		}
 	}
 	
 	public String getValue(String arg){

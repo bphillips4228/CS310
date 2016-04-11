@@ -64,6 +64,24 @@ public class ParserTest{
 		assertEquals("height ", extraArgs);
 	}
 	
+	@Test(expected = RestrictedValueException.class)
+	public void testThatRestrictedValueExceptionIsThrown(){
+		String[] args = {"--type", "dog"};
+		String[] restrictedValues = {"box", "ellipsoid", "circle"};
+		p.addOptionalArgument("type", "box", Argument.dataType.STRING, "t");
+		p.setRestrictedValues("type", restrictedValues);
+		p.parseValues(args);
+	}
+	
+	@Test
+	public void testThatRestrictedValuesAreAdded(){
+		String[] args = {"--type", "dog"};
+		String[] restrictedValues = {"box", "ellipsoid", "circle"};
+		p.addOptionalArgument("type", "box", Argument.dataType.STRING, "t");
+		p.setRestrictedValues("type", restrictedValues);
+		assertArrayEquals(restrictedValues, p.getRestrictedValues("type"));
+	}
+	
 	@Test
 	public void testTooManyArgsExceptionArgs(){
 		String[] args = {"length", "width", "height"};

@@ -47,5 +47,13 @@ public class ArgumentTest{
 		a.setDataType(Argument.dataType.BOOLEAN);
 		assertEquals(Argument.dataType.BOOLEAN, a.getDataType());
 	}
+	
+	@Test
+	public void testThatRestrictedValuesAreAdded(){
+		String[] restrictedValues = {"box", "ellipsoid", "square"};
+		a = new Argument("type");
+		a.setRestrictedValues(restrictedValues);
+		assertEquals(restrictedValues[1], a.getRestrictedValues().get(1));
+	}
 
 }

@@ -9,54 +9,75 @@ public class Argument{
 	private dataType valueType;
 	private String shortForm;
 	private String description;
+	private List&lt;String&gt; restrictedValues;
+	private boolean bRequired;
 	
-<span class="fc" id="L13">	public Argument(String name){</span>
-<span class="fc" id="L14">		this.name = name;</span>
-<span class="fc" id="L15">		this.valueType = dataType.STRING;</span>
-<span class="fc" id="L16">		this.shortForm = &quot;&quot;;</span>
-<span class="fc" id="L17">		this.description = &quot;&quot;;</span>
-<span class="fc" id="L18">	}</span>
+<span class="fc" id="L15">	public Argument(String name){</span>
+<span class="fc" id="L16">		this.name = name;</span>
+<span class="fc" id="L17">		this.valueType = dataType.STRING;</span>
+<span class="fc" id="L18">		this.shortForm = &quot;&quot;;</span>
+<span class="fc" id="L19">		this.description = &quot;&quot;;</span>
+<span class="fc" id="L20">		this.bRequired = false;</span>
+<span class="fc" id="L21">		restrictedValues = new ArrayList&lt;String&gt;();</span>
+<span class="fc" id="L22">	}</span>
 	
-<span class="fc" id="L20">	public Argument(String name, dataType dataType){</span>
-<span class="fc" id="L21">		this.name = name;</span>
-<span class="fc" id="L22">		this.valueType = dataType;</span>
-<span class="fc" id="L23">	}</span>
-	
-	public void setValue(String value){
-<span class="fc" id="L26">		this.value = value;</span>
+<span class="fc" id="L24">	public Argument(String name, dataType dataType){</span>
+<span class="fc" id="L25">		this.name = name;</span>
+<span class="fc" id="L26">		this.valueType = dataType;</span>
 <span class="fc" id="L27">	}</span>
 	
-	public void setShortForm(String shortForm){
-<span class="fc" id="L30">		this.shortForm = shortForm;</span>
+	public void setValue(String value){
+<span class="fc" id="L30">		this.value = value;</span>
 <span class="fc" id="L31">	}</span>
 	
+	public void setShortForm(String shortForm){
+<span class="fc" id="L34">		this.shortForm = shortForm;</span>
+<span class="fc" id="L35">	}</span>
+	
+	public void setRestrictedValues(String[] values){
+<span class="fc bfc" id="L38" title="All 2 branches covered.">		for(int i = 0; i &lt; values.length; i++){</span>
+<span class="fc" id="L39">			restrictedValues.add(values[i]);</span>
+		}
+<span class="fc" id="L41">	}</span>
+	
+	public List&lt;String&gt; getRestrictedValues(){
+<span class="fc" id="L44">		return restrictedValues;</span>
+	}
+	
 	public String getShortForm(){
-<span class="fc" id="L34">		return shortForm;</span>
+<span class="fc" id="L48">		return shortForm;</span>
 	}
 	
 	public void setDescription(String description){
-<span class="fc" id="L38">		this.description = description;</span>
-<span class="fc" id="L39">	}</span>
+<span class="fc" id="L52">		this.description = description;</span>
+<span class="fc" id="L53">	}</span>
 	
 	public String getDescription(){
-<span class="fc" id="L42">		return description;</span>
+<span class="fc" id="L56">		return description;</span>
 	}
 	
 	public String getName(){
-<span class="fc" id="L46">		return name;</span>
+<span class="fc" id="L60">		return name;</span>
 	}
 	
 	public dataType getDataType(){
-<span class="fc" id="L50">		return valueType;</span>
+<span class="fc" id="L64">		return valueType;</span>
 	}
 	
 	public void setDataType(dataType dataType){
-<span class="fc" id="L54">		this.valueType = dataType;</span>
-<span class="fc" id="L55">	}</span>
+<span class="fc" id="L68">		this.valueType = dataType;</span>
+<span class="fc" id="L69">	}</span>
 	
 	public String getValue(){
-<span class="fc" id="L58">		return value;</span>
+<span class="fc" id="L72">		return value;</span>
 	}
 	
+	public void makeRequired(){
+<span class="nc" id="L76">		bRequired = true;</span>
+<span class="nc" id="L77">	}</span>
+	
+	public boolean isRequired(){
+<span class="fc" id="L80">		return bRequired;</span>
+	}
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.1.201405082137</span></div></body></html>

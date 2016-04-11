@@ -9,12 +9,16 @@ public class Argument{
 	private dataType valueType;
 	private String shortForm;
 	private String description;
+	private List<String> restrictedValues;
+	private boolean bRequired;
 	
 	public Argument(String name){
 		this.name = name;
 		this.valueType = dataType.STRING;
 		this.shortForm = "";
 		this.description = "";
+		this.bRequired = false;
+		restrictedValues = new ArrayList<String>();
 	}
 	
 	public Argument(String name, dataType dataType){
@@ -28,6 +32,16 @@ public class Argument{
 	
 	public void setShortForm(String shortForm){
 		this.shortForm = shortForm;
+	}
+	
+	public void setRestrictedValues(String[] values){
+		for(int i = 0; i < values.length; i++){
+			restrictedValues.add(values[i]);
+		}
+	}
+	
+	public List<String> getRestrictedValues(){
+		return restrictedValues;
 	}
 	
 	public String getShortForm(){
@@ -58,4 +72,11 @@ public class Argument{
 		return value;
 	}
 	
+	public void makeRequired(){
+		bRequired = true;
+	}
+	
+	public boolean isRequired(){
+		return bRequired;
+	}
 }
