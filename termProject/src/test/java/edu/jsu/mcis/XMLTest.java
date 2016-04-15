@@ -10,7 +10,6 @@ public class XMLTest {
 	
 	@Before
 	public void setUp() {
-		p = new Parser();
 		x = new XmlTool();
 	}
 	
@@ -35,5 +34,21 @@ public class XMLTest {
 		assertTrue(p.containsName("length"));
 		assertTrue(p.containsName("width"));
 		assertTrue(p.containsName("height"));
+	}
+	
+	@Test
+	public void testThatFileIsSaved(){
+		p = new Parser();
+		String[] args = {"5", "5", "false", "asdf", "-t", "sphere"};
+		p.addArgument("length", Argument.dataType.FLOAT);
+		p.addArgument("width", Argument.dataType.INT);
+		p.addArgument("height", Argument.dataType.BOOLEAN);
+		p.addArgument("variable", Argument.dataType.STRING);
+		p.addOptionalArgument("type", "box", Argument.dataType.STRING, "t");
+		p.addOptionalArgument("bool", "false", Argument.dataType.BOOLEAN);
+		p.addOptionalArgument("int", "1", Argument.dataType.INT);
+		p.addOptionalArgument("float", "1.0", Argument.dataType.FLOAT);
+		p.parseValues(args);
+		x.saveToXML("saveFileUnitTest.xml", p);
 	}
 }

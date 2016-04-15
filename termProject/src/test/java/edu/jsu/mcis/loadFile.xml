@@ -19,6 +19,14 @@
         <shortname>t</shortname>
         <type>string</type>
         <default>box</default>
+		<restricted>box, cylinder, sphere</restricted>
+		<required>false</required>
+    </named>
+	<named>
+        <name>variable</name>
+        <shortname>v</shortname>
+        <type>boolean</type>
+        <default>false</default>
     </named>
 	<named>
         <name>squirrel</name>
@@ -29,7 +37,7 @@
         <name>digits</name>
         <shortname>d</shortname>
         <type>integer</type>
-        <default>4</default>
+        <default>2</default>
     </named>
 	<named>
         <name>blue</name>
@@ -37,4 +45,5 @@
         <default>false</default>
 		<description>blah</description>
     </named>
+<programname>testload program</programname>
 </arguments>

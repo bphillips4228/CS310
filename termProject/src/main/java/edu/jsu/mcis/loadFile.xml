@@ -19,6 +19,7 @@
         <shortname>t</shortname>
         <type>string</type>
         <default>box</default>
+		<restricted>box, sphere, cylinder</restricted>
     </named>
 	<named>
         <name>poop</name>
@@ -29,6 +30,6 @@
         <name>digits</name>
         <shortname>d</shortname>
         <type>integer</type>
-        <default>4</default>
+        <default>1</default>
     </named>
 </arguments>

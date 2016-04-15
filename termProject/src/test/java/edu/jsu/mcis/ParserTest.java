@@ -51,6 +51,23 @@ public class ParserTest{
 	}
 	
 	@Test
+	public void testRequiredArgument(){
+		String[] args = {"-t", "box"};
+		p.addOptionalArgument("type", "box", Argument.dataType.STRING, "t");
+		p.makeRequired("type");
+		p.parseValues(args);
+	}
+	
+	@Test(expected = RequiredArgumentException.class)
+	public void testThatRequiredArgumentExceptionIsThrown(){
+		String[] args = {"-d", "2"};
+		p.addOptionalArgument("type", "box", Argument.dataType.STRING, "t");
+		p.addOptionalArgument("digits", "1", Argument.dataType.INT, "d");
+		p.makeRequired("type");
+		p.parseValues(args);
+	}
+	
+	@Test
 	public void testTooFewArgsExceptionArgs(){
 		String[] args = {"length", "width", "height"};
 		String [] values = {"1", "1"};
@@ -69,18 +86,28 @@ public class ParserTest{
 		String[] args = {"--type", "dog"};
 		String[] restrictedValues = {"box", "ellipsoid", "circle"};
 		p.addOptionalArgument("type", "box", Argument.dataType.STRING, "t");
-		p.setRestrictedValues("type", restrictedValues);
+		p.addRestrictedValues("type", restrictedValues);
 		p.parseValues(args);
 	}
 	
 	@Test
 	public void testThatRestrictedValuesAreAdded(){
-		String[] args = {"--type", "dog"};
 		String[] restrictedValues = {"box", "ellipsoid", "circle"};
 		p.addOptionalArgument("type", "box", Argument.dataType.STRING, "t");
-		p.setRestrictedValues("type", restrictedValues);
+		p.addRestrictedValues("type", restrictedValues);
 		assertArrayEquals(restrictedValues, p.getRestrictedValues("type"));
 	}
+	
+	@Test
+	public void testThatRestrictedValuesAreParsed(){
+		String[] args = {"--type", "box"};
+		String[] restrictedValues = {"box", "ellipsoid", "circle"};
+		p.addOptionalArgument("type", "box", Argument.dataType.STRING, "t");
+		p.addRestrictedValues("type", restrictedValues);
+		p.parseValues(args);
+		assertEquals("box", p.getOptionalValue("type"));
+	}
+	
 	
 	@Test
 	public void testTooManyArgsExceptionArgs(){
@@ -128,7 +155,8 @@ public class ParserTest{
 	public void testThatHelpExceptionIsThrown(){
 		p.setProgramName("program");
 		String[] values = {"-h"};
-		p.addOptionalArgument("help", "false", Argument.dataType.BOOLEAN, "h", "poop");
+		p.addOptionalArgument("help", "false", Argument.dataType.BOOLEAN, "h");
+		p.setArgumentDescription("help", "poop");
 		p.parseValues(values);
 	}
 	

@@ -3,6 +3,18 @@ import java.util.*;
 import java.lang.*;
 import javax.xml.*;
 
+/** 
+ * Allows the user to add each argument and enter data values into the command line. 
+ * 
+ *
+ *@author Brandon Phillips 
+ *@author Ryan Mullally
+ *@author Cody Dempsey
+ *@author Quintan Brothers
+ *@author Sam Vogt
+ *
+ */
+
 public class Parser{
 	
 	private List<Argument> argumentList;
@@ -10,10 +22,21 @@ public class Parser{
 	private String programName;
 	private int count = 0;
 	
+	/**
+	* Creates the argument list and the optional arguments list as new Array Lists. <br>
+	* An example of an optional argument would be <code> -help </code> which would display a help message showing help information.
+	*/
+	
 	public Parser(){
 		argumentList = new ArrayList<Argument>();
 		optionalArgumentsList = new ArrayList<Argument>();
-		}
+	}
+	
+	/**
+	 * Adds the arguments entered by the user to a String array
+	 * @param args The arguments entered from the command line.
+	 */
+	
 	
 	public void addArguments(String[] args){
 		for(int i = 0; i < args.length; i++){
@@ -21,13 +44,30 @@ public class Parser{
 		}
 	}
 	
+	/**
+	 * Adds a name to an argument in the argument list.
+	 * @param name The name of the arguement. 
+	 */
+	
 	public void addArgument(String name){
 		argumentList.add(new Argument(name));
 	}
 	
+	/**
+	* Adds the name and the datatype to the argument list. 
+	* @param name The name of the argument.
+	* @param dataType The data type of the argument.
+	*/
+	
 	public void addArgument(String name, Argument.dataType dataType){
 		argumentList.add(new Argument(name, dataType));
 	}
+	
+	/**
+	* Adds the name and value of optional arguments into the optional argument list. 
+	* @param name The name of the optional argument
+	* @param value The value of the optional argument.
+	*/
 	
 	public void addOptionalArgument(String name, String value){
 		optionalArgumentsList.add(new Argument(name));
@@ -35,12 +75,27 @@ public class Parser{
 		optionalArgumentsList.get(k).setValue(value);
 	}
 	
+	/**
+	* Adds the name, value, and dataType to the optional argument list and sets each value.
+	* @param name the name of the optional argument.
+	* @param value the value of the optional argument.
+	* @param dataType the data type of the optional argument.
+	*/
+	
 	public void addOptionalArgument(String name, String value, Argument.dataType dataType){
 		optionalArgumentsList.add(new Argument(name));
 		int k = getIndex(name);
 		optionalArgumentsList.get(k).setValue(value);
 		optionalArgumentsList.get(k).setDataType(dataType);
 	}
+	
+	/**
+	* Adds the name, value, data type, and short form value for optional argument list and sets each value.	
+	* @param name the name of the optional argument.
+	* @param value the value of the optional argument. 
+	* @param dataType the data type of the optional argument.
+	* @param shortForm the short form value of the optional argument. 
+	*/
 	
 	public void addOptionalArgument(String name, String value, Argument.dataType dataType, String shortForm){
 		optionalArgumentsList.add(new Argument(name));
@@ -50,30 +105,64 @@ public class Parser{
 		optionalArgumentsList.get(k).setShortForm(shortForm);
 	}
 	
-	public void addOptionalArgument(String name, String value, Argument.dataType dataType, String shortForm, String description){
+	/**
+	* Adds the name, value, data type, short form, and description of the argument.
+	* @param name the name of the optional argument.
+	* @param value the value of the optional argument. 
+	* @param dataType the data type of the optional argument.
+	* @param shortForm the short form value of the optional argument. 
+	* @param description the description of the optional argument.
+	*/
+	
+	public void addOptionalArgument(String name, String value, Argument.dataType dataType, String shortForm, String[] restrictedValues){
 		optionalArgumentsList.add(new Argument(name));
 		int k = getIndex(name);
 		optionalArgumentsList.get(k).setValue(value);
 		optionalArgumentsList.get(k).setDataType(dataType);
 		optionalArgumentsList.get(k).setShortForm(shortForm);
-		optionalArgumentsList.get(k).setDescription(description);
+		optionalArgumentsList.get(k).setRestrictedValues(restrictedValues);
 	}
 	
-	public void setRestrictedValues(String name, String[] restrictedValues){
+	/**
+	* Sets the restricted values to the optional argument Array List.
+	* @param name The name of the optional argument
+	* @param restrictedValues The String array containing the resctricted values.
+	*/
+	
+	public void addRestrictedValues(String name, String[] restrictedValues){
 		int k = getIndex(name);
 		optionalArgumentsList.get(k).setRestrictedValues(restrictedValues);
 	}
+	
+	/**
+	* Returns the optional argument list as a String array.
+	* @param name The name of the argument
+	* @return optionalArgumentsList
+	*/
 	
 	public String[] getRestrictedValues(String name){
 		int k = getIndex(name);
 		return optionalArgumentsList.get(k).getRestrictedValues().toArray(new String[optionalArgumentsList.get(k).getRestrictedValues().size()]);
 	}
 	
+	/**
+	* Sets the datatype of the optional argument.
+	* @param name the name of the optional argument.
+	* @param dataType the data type of the optional argument.
+	*/
+	
 	public void setOptionalArgumentType(String name, Argument.dataType dataType){
 		int index = getIndex(name);
 		optionalArgumentsList.get(index).setDataType(dataType);
 		
 	}
+	
+	/**
+	* Checks to see if each argument in argument list contains a name.
+	* @param arg the argument in the argument list.
+	* @return true true if a name is assigned to the argument.
+	* @return false false if a name is not assigned to the argument.
+	*/
 	
 	public boolean containsName(String arg){
 		for(int i = 0; i < argumentList.size(); i++){
@@ -83,15 +172,44 @@ public class Parser{
 		return false;
 	}
 	
+	/**
+	* Sets the short form value of an optional argument. 
+	* @param arg The optional argument.
+	* @param shortForm The short form value of the optional argument.
+	*/
+	
 	public void setShortForm(String arg, String shortForm){
 		int index = getIndex(arg);
 		optionalArgumentsList.get(index).setShortForm(shortForm);
 	}
 	
+	/**
+	* Returns the short form value of an optional argument.
+	* @param arg The optional argument.
+	* @return returns the optional argument list and the short form values for each argument in that list. 
+	*/
+	
 	public String getShortForm(String arg){
 		int index = getIndex(arg);
 		return optionalArgumentsList.get(index).getShortForm();
 	}
+	
+	/**
+	* Requires the user to input a value for an argumnet in the commandline
+	* @param the argument name
+	* @return returns the shortform name for an argument
+	*/
+	
+	public void makeRequired(String arg){
+		int index = getIndex(arg);
+		optionalArgumentsList.get(index).makeRequired();
+	}
+	
+	/**
+	* Parses the values from the command line.
+	* @param args the values retrieved from the command line.
+	*
+	*/
 	
 	public void parseValues(String[] args){
 		checkForRequiredArgument(args);
@@ -117,13 +235,14 @@ public class Parser{
 			}
 			
 			for(int i = 0; i < requiredArgs.size(); i++){
-				for(int j = 0; i < args.length; j++){
-					if(requiredArgs.get(i).getName() == args[j] || requiredArgs.get(i).getShortForm() == args[j])
+				for(int j = 0; j < args.length; j++){
+					String argument = args[i].replace("-", "");
+					if(requiredArgs.get(i).getName().equals(argument) || requiredArgs.get(i).getShortForm().equals(argument))
 						temp++;
 				}
 			}
 			
-			if(temp > 0){
+			if(temp < requiredArgs.size()){
 				String argNames = "";
 				for(int i = 0; i < requiredArgs.size(); i++){
 					argNames += requiredArgs.get(i).getName() + " ";
@@ -239,6 +358,12 @@ public class Parser{
 		}
 	}
 	
+	/**
+	* Gets the argument value from the command line and throws an exception if no value is found.
+	* @param arg The argument being parsed.
+	* @return Returns the argument list populated with the argument values.
+	*/
+	
 	public String getValue(String arg){
 		for(int i = 0; i < argumentList.size(); i++){
 			if(argumentList.get(i).getName().equals(arg))
@@ -248,12 +373,17 @@ public class Parser{
 		throw new NoValueFoundException(arg);
 	}
 	
+	/**
+	* Loops through the optional argument list and gets the value from each optional argument in the optional argument list. Throws an exception if no value is assigned to an optional argument.
+	* @param arg the optional argument
+	* @return returns the value for each optional argument.
+	*/
+	
 	public String getOptionalValue(String arg){
 		for(int i = 0; i < optionalArgumentsList.size(); i++){
 			if(optionalArgumentsList.get(i).getName().equals(arg))
 				return optionalArgumentsList.get(i).getValue();
 		}
-		
 		throw new NoValueFoundException(arg);
 	}
 	
@@ -350,19 +480,43 @@ public class Parser{
 		return false;
 	}
 	
+	/**
+	* Sets the description of the arguments in the optional argument list. 
+	* @param arg the argument.
+	* @param description the description of the argument. <br>
+	* For example, an argument named "height" might have the description "The height of the box."
+	*/
+	
 	public void setArgumentDescription(String arg, String description){
 		int index = getIndex(arg);
 		optionalArgumentsList.get(index).setDescription(description);
 	}
+	
+	/**
+	* Returns the decription of the arguments in the optional argument list. 
+	* @param arg the argument
+	* @return Returns the description of each argument from the optional argument list.
+	*/
 	
 	public String getArgumentDescription(String arg){
 		int index = getIndex(arg);
 		return optionalArgumentsList.get(index).getDescription();
 	}
 	
+	/**
+	* Sets the name of the program.
+	* @param name The name of the program.
+	*/
+	
 	public void setProgramName(String name){
 		this.programName = name;
 	}
+	
+	/**
+	* Checks to see if the datatype is an acceptable data type (boolean, int, float, or string) and converts each type to a string.
+	* @param arg the argument
+	* @return returns a string representation of the given datatype.
+	*/
 	
 	public String dataTypeToString(Argument arg){
 		Argument.dataType type = arg.getDataType();
@@ -376,9 +530,51 @@ public class Parser{
 			return "String";
 	}
 	
+	/**
+	* Returns the data type of the arguments in the optional argument list. 
+	* @param arg the argument.
+	* @return returns the data type.
+	*/
+	
 	public Argument.dataType getDataType(String arg){
 		int index = getIndex(arg);
 		return optionalArgumentsList.get(index).getDataType();
+	}
+	
+	/**
+	* Returns the number of positonal arguments 
+	* @return returns number of positional arguments
+	*/
+	
+	public int getNumOfPositionalArgs() {
+		return argumentList.size();
+	}
+	
+	/**
+	* Returns the number of optional arguments
+	* @return returns number of optional arguments
+	*/
+	
+	public int getNumOfNamedArgs() {
+		return optionalArgumentsList.size();
+	}
+	
+	/**
+	* Returns a postional argument argument object
+	* @return returns argument object
+	*/
+	
+	public Argument getPositionalArg(int index) {
+		return argumentList.get(index);
+	}
+	
+	/**
+	* Returns a optional argument argument object
+	* @return returns argument object
+	*/
+	
+	public Argument getNamedArg(int index) {
+		return optionalArgumentsList.get(index);
 	}
 	
 }
